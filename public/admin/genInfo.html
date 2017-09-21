@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<!-- this is my list of sites and their control structures
+Created: October 20, 2014
+Update:  November 19, 2014
+
+-->
+
+
+<html>
+	<head>
+		<title>Gen Info</title>
+		<meta charset="utf-8" />
+		<script type="text/javascript" src="mylist.js">
+
+		</script>
+	</head>
+	<!--
+	<body onload="checkCookie()">
+	-->
+	<body>
+
+		<form action="" >
+			New Password: <input type="text" name="wordpass" id="userPswrd" size="50" onblur="genInfo();" /><br />
+			Old Password: <input type="text" name="oldwordpass" id="olduserPswrd" size="50" onblur="genOldInfo();" />
+<!-- 			onfocus="newFocus('userPswrd');" -->
+		</form>
+		<br />
+		<br />Password: <span id="passwrd"></span><br />
+
+	</body>
+</html>
