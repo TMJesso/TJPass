@@ -1,4 +1,5 @@
 <?php
+// 
 class Session {
 	
 	private $logged_in = false;
@@ -7,11 +8,11 @@ class Session {
 	
 	private $name;
 	
-	public $message;
-	
 	private $security = 9;
 
 	private $clearance = 9;
+	
+	public $message;
 	
 	public $errors;
 	
@@ -20,7 +21,7 @@ class Session {
 	 *
 	 * @var integer
 	 */
-	private $activity_timeout = 3600;  // 1800 is 30 minutes
+	private $activity_timeout = 3600;  // 1800 is 30 minutes has been increased to 1 hour
 	
 	private $last_activity;
 	
@@ -29,7 +30,7 @@ class Session {
 		$this->check_message();
 		$this->check_errors();
 		//$this->check_data();
-		$this->check_login();
+		//$this->check_login();
 	}
 	
 	/** check to see if the user is logged in
@@ -116,12 +117,12 @@ class Session {
 	 * @param object $user
 	 * @param int $sheblon
 	 */
-	public function login($user, $sheblon) {
+	public function login($user) {
 		// database should find user based on username/password
 		if ($user) {
 			$this->user_id = $_SESSION['user_id'] = (int)$user->id;
 			$this->name = $_SESSION['name'] = $this->fullname($user);
-			$this->security = $_SESSION['security'] = $sheblon;
+			$this->security = $_SESSION['security'] = $user->security;
 			$this->clearance = $_SESSION['clearance'] = $user->clearance;
 			$this->last_activity = $_SESSION['last_activity'] = time();
 			if(isset($user->master)) {
@@ -176,4 +177,66 @@ class Session {
 		$this->logged_in = false;
 	}
 	
+	/** message is used to display any success messages or messages needing to
+	 *
+	 * be displayed to the user when interacting with this application. The message
+	 *
+	 * uses the session variable
+	 *
+	 * $msg is the message to be displayed to the user
+	 *
+	 * and this will also clear the message from the session
+	 *
+	 * @param string $msg
+	 * @return string
+	 */
+	public function message($msg="") {
+		if (!empty($msg)) {
+			// then this is "set message"
+			// make sure you understand why $this->message=$msg wouldn't work
+			$_SESSION["message"] = $msg;
+		} else {
+			// then this is "get message"
+			return $this->message;
+		}
+	}
+	
+	public function errors($err=array()) {
+		if (!empty($err)) {
+			// then this is "set error"
+			$_SESSION["errors"] = $err;
+		} else {
+			return $this->errors;
+		}
+	}
+	
+	private function check_message() {
+		// is there a message stored in the session?
+		if (isset($_SESSION['message'])) {
+			// add it as an attribute and erase the stored version
+			$this->message = htmlentities($_SESSION['message']);
+			unset($_SESSION['message']);
+		} else {
+			$this->message = "";
+		}
+	}
+	
+	private function check_errors() {
+		// is there an error stored in the session?
+		if (isset($_SESSION["errors"])) {
+			// add it as an attribute and erase the stored version
+			$this->errors = $this->form_errors($_SESSION["errors"]);
+			unset($_SESSION["errors"]);
+		} else {
+			$this->errors = "";
+		}
+	}
+	
+	
+}
+
+$session = new Session();
+$message = $session->message();
+$errors = $session->errors();
+
 	

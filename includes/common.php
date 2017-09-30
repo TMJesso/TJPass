@@ -1,7 +1,6 @@
 <?php
-require_once 'database.php';
+//require_once LIB_PATH . 'database.php';
 class Common {
-	protected static $db_name = "db_1242_tjpass";
 	
 	public static function find_by_sql($sql="") {
 		global $base;
@@ -13,11 +12,6 @@ class Common {
 			}
 		}
 		return $object_array;
-	}
-	
-	public static function new_find_by_sql($sql="") {
-		global $base;
-		return $base->fetch_object($sql);
 	}
 	
 	protected static function instantiate($record) {
@@ -61,9 +55,6 @@ class Common {
 	
 	public function save() {
 		// A new record won't have an id yet.
-		if (!isset($this->year)) {
-			$this->year = (int) strftime("%Y",time());
-		}
 		return (isset($this->id)) ? $this->update() : $this->create();
 	}
 	
@@ -100,40 +91,11 @@ class Common {
 	public function delete() {
 		global $base;
 		$sql  = "DELETE FROM ". static::$table_name;
-		$sql .= " WHERE id=". $base->prevent_injection($this->id);
+		$sql .= " WHERE id=" . $this->id;
 		$sql .= " LIMIT 1";
 		$base->query($sql);
 		return ($base->affected_rows() == 1) ? true : false;
 		
-	}
-	
-	protected function check_database() {
-		// grant pivileges must be set prior to creating the tables
-		// database must also exist
-		global $base;
-		$sql  = 'CREATE TABLE IF NOT EXISTS user ( ';
-		$sql .= 'id int(11) NOT NULL AUTO_INCREMENT, ';
-		$sql .= 'username varchar(20) NOT NULL, ';
-		$sql .= 'passcode varchar(72) NOT NULL, ';
-		$sql .= 'date_create datetime NOT NULL, ';
-		$sql .= 'last_update datetime NOT NULL, ';
-		$sql .= 'terminate_access tinyint(1) NOT NULL DEFAULT 0';
-		$sql .= 'fname varchar(20) NOT NULL, ';
-		$sql .= 'lname varchar(20) NOT NULL, ';
-		$sql .= 'phone varchar(10) NOT NULL, ';
-		$sql .= 'address varchar(35) NULL DEFAULT ""';
-		$sql .= 'city varchar(25) NOT NULL, ';
-		$sql .= 'state varchar(2) NOT NULL, ';
-		$sql .= 'zip varchar(5) NOT NULL, ';
-		$sql .= 'security int(1) NOT NULL DEFAULT 9, ';
-		$sql .= 'clearance int(1) NOT NULL DEFAULT 9, ';
-		$sql .= 'PRIMARY KEY (username), ';
-		$sql .= 'UNIQUE INDEX id (id), ';
-		$sql .= 'INDEX full_name (fname, lname), ';
-		$sql .= 'INDEX reverse_name (lname, fname), ';
-		$sql .= 'INDEX state (state, city)) ';
-		$sql .= 'ENGINE=Innodb DEFAULT CHARSET=utf8';
-		$base->query($sql);
 	}
 	
 }
