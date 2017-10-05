@@ -147,7 +147,7 @@ class Cypress extends Common {
 					$sql .= 'crypt_name text NULL, ';
 					$sql .= 'crypt_security text NULL, ';
 					$sql .= 'descript varchar(75) NULL, ';
-					$sql .= 'link varchar(255) NULL, ';
+					$sql .= 'link blob, ';
 					$sql .= 'link_order int(5) NOT NULL DEFAULT 0, ';
 					$sql .= 'active tinyint(1) NOT NULL DEFAULT 0, ';
 					$sql .= 'PRIMARY KEY (crypt_id), ';

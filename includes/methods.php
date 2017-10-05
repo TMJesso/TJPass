@@ -1,7 +1,5 @@
 <?php
 
-$errors=array();
-
 function log_data_verbose($input, $desc=""){
 	$string_format = var_export($input, true);
 	$file = fopen("\mylog.txt", "a");

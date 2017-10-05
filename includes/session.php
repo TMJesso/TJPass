@@ -232,6 +232,22 @@ class Session {
 		}
 	}
 	
+	private function form_errors($errors=array()) {
+		$output = "";
+		if (!empty($errors)) {
+			$output .= "<div class=\"alert callout text-center\">";
+			//if ()
+			$output .= "Possible errors or notices:";
+			$output .= "<ul>";
+			foreach ($errors as $key => $err) {
+				$output .= "<li>{$err}</li>";
+			}
+			$output .= "</ul>";
+			$output .= "</div>";
+		}
+		return $output;
+	}
+	
 	
 }
 

@@ -22,16 +22,16 @@ Updated: September 27, 2017
 		<title>hello</title>
 	</head>
 	<body>
-		<div class="grid-x grid-padding-x">
-			<div class="large-3 medium-3 cell">
+		<div class="row">
+			<div class="large-3 medium-3 columns">
 				&nbsp;
 			</div>
-			<div class="large-6 medium-6 cell">
+			<div class="large-6 medium-6 columns text-center">
 				<?php echo html_entity_decode(output_message($session->message)); ?>
 				<?php echo output_errors($session->errors);?>
 			<!-- Do not remove Error and Message Section -->
 			</div>
-			<div class="large-3 medium-3 cell">
+			<div class="large-3 medium-3 columns">
 				&nbsp;
 			</div>
 		</div>
