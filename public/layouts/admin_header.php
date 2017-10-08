@@ -1,5 +1,5 @@
 <?php
-global $session;
+global $session, $breadcrum;
 
 ?>
 <!DOCTYPE html>
@@ -23,6 +23,9 @@ Updated: September 27, 2017
 	</head>
 	<body>
 		<div class="row">
+			<div class="large-12 medium-12 columns">
+				<h1 class="text-center">TJ Password Tracker</h1>
+			</div>
 			<div class="large-3 medium-3 columns">
 				&nbsp;
 			</div>
@@ -33,6 +36,9 @@ Updated: September 27, 2017
 			</div>
 			<div class="large-3 medium-3 columns">
 				&nbsp;
+			</div>
+			<div class="large-12 medium-12 columns">
+				<h3 class="text-center"><?php echo $breadcrum; ?></h3>
 			</div>
 		</div>
 	

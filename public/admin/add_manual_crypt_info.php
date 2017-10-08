@@ -11,6 +11,9 @@
 		$workhorse->crypt_security = $base->prevent_injection($_POST["txt_cryp_pass"]);
 		$workhorse->descript = $base->prevent_injection($_POST["txt_descript"]);
 		$workhorse->link = $base->prevent_injection($_POST["txt_link"]);
+		if (empty($workhorse->link)) {
+			$workhorse->link = "#";
+		}
 		$workhorse->link_order = $base->prevent_injection($_POST["txt_link_order"]);
 		$workhorse->crypt_id = chr(mt_rand(65, 90)) . chr(mt_rand(65, 90)) . chr(mt_rand(65, 90)) . "00" . ($num+$workhorse->link_order);
 		$workhorse->active = 1;
@@ -40,9 +43,6 @@
 <?php include_layout_template("admin_header.php"); ?>
 
 	<div class="row">
-		<div class="large-12 medium-12 columns">
-			<h3 class="text-center"><?php echo $breadcrum; ?></h3>
-		</div>
 		<div class="large-3 medium-3 columns">
 			&nbsp;
 		</div>
@@ -79,12 +79,12 @@
 				</label>
 				
 				<label for="txt_link">Link
-					<textarea name="txt_link" id="txt_link" placeholder="Where should I go when you click on me" required><?php echo $link; ?></textarea>
+					<textarea name="txt_link" id="txt_link" aria-describedby="link_help_text"placeholder="Where should I go when you click on me" required><?php echo $link; ?></textarea>
 					<span class="form-error">
 						You must enter the Link for this information! eg. http://google.com
 					</span>
 				</label>
-				
+				<p class="help-text" id="link_help_text">If left blank it will default to "#".</p>
 				<label for="txt_link_order">Link Order
 					<input type="number" name="txt_link_order" id="txt_link_order" min="0" value="<?php echo $link_order?>" placeholder="Where do you want me to place this?" required />
 					<span class="form-error">

@@ -5,30 +5,10 @@ require_once '../../includes/initialize.php';
 // this file is to be run only once to setup the tables with the data inside this
 // file and populate the tables with it
 
-$user = User::get_user_by_username("TJAdmin");
-//$work = new Workhorse();
-$num = 10000;
 ?>
 
 
-<!DOCTYPE html>
-<!-- this is my list of sites and their control structures
-Created: October 20, 2014
-Last Update:  February 3, 2015
-Updated: September 21, 2017
-	// 24236243582364836483690362436663696365436303648360036723606367236723606368436123582368436543384361836543582363036483276359436663654
-	// 24934973357381235043336381235393735375637003357335033433336
-
--->
-<html>
-	<head>
-		<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-	  <link href="<?php echo CSS_PATH."mylist.css"; ?>" rel="stylesheet" type="text/css" />
-		<script type="text/javascript" src="<?php echo JS_PATH . "mylist.js"; ?>"></script>
-		<script type="text/javascript">/*first and last*/var gentitle="221f762qC7ZLWCM74rW32529oEq929MEkPfD26t3312xd4a783kVB4bA3Md3303876WvUNpk8Y8TF4V3342pLJ76G34gab97CpW3291W3b67ce8FW3sv9Pp33249v2ib2s6f38RNsUq2969oEq929MEkPfD26t32229oEq929MEkPfD26t330326W6GPbzj43b8aKC33454s34A9ZTno6HDF8x33459W8BX7ZPt7Y26qEH33334s34A9ZTno6HDF8x3336";var txtname=getPass(gentitle);document.write('<title>'+txtname+' :: PRIVATE Menu page</title>');</script>
-		<title>hello</title>
-	</head>
-	<body onload="initMenu();">
+<?php include_layout_template("admin_header.php"); ?>
 		<span id="uname">Enter user name: </span><input type="text" name="user" id="user" /><br />
 		<span id="upass">Enter password: </span><input type="password" name="pass" id="pass" /><br />
 		<input type="button" value="OK" id="btn" onclick="goGetit();" />

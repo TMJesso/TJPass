@@ -1,8 +1,8 @@
 <?php
 
 ?>
-		<div class="grid-x grid-padding-x">
-			<div class="large-12 medium-12 cell text-center">
+		<div class="row">
+			<div class="large-12 medium-12 columns text-center">
 				<footer style="font-size:.85em;">
 					<br>
 					<p>
