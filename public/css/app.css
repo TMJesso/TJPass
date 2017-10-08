@@ -8,3 +8,10 @@ h1 {
 	color:#336633;
 }
 
+required {
+	color: red;
+}
+
+.small {
+	font-size: .65em;
+}

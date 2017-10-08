@@ -175,6 +175,11 @@ function now_format() {
 	return "Y-m-d H:i:s";
 }
 
+function set_required() {
+	?>
+	<h6 class="text-center small">All items in <required>RED</required> are required</h6>
+	<?php 
+}
 
 
 

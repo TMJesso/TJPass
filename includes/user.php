@@ -137,4 +137,12 @@ class User extends Common {
 	public function get_reverse_name() {
 		return $this->lname . ", " . $this->fname;
 	}
+	
+	public static function get_user_by_id($id) {
+		$sql  = "SELECT * FROM " . self::$table_name;
+		$sql .= " WHERE id = {$id}";
+		$sql .= " LIMIT 1";
+		$row = self::find_by_sql($sql);
+		return array_shift($row);
+	}
 }

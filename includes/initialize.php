@@ -21,6 +21,8 @@ require_once LIB_PATH . 'log.php';
 require_onCE LIB_PATH . 'session.php';
 require_once LIB_PATH . 'user.php';
 require_once LIB_PATH . 'workhorse.php';
+require_once LIB_PATH . 'uservalues.php';
+require_once LIB_PATH . 'useraccess.php';
 
 
 ?>

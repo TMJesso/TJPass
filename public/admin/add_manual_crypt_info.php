@@ -35,7 +35,7 @@
 		}
 	} else {
 		$link = "";
-		$link_order = Workhorse::get_last_link_order()+1;
+		$link_order = Workhorse::get_last_link_order($user->username)+1;
 	}
 	
 ?>
