@@ -1,4 +1,5 @@
 <?php
+require_once LIB_PATH . 'initialize.php';
 // 
 class Session {
 	
@@ -12,16 +13,18 @@ class Session {
 
 	private $clearance = 9;
 	
+	public $data;
+	
 	public $message;
 	
-	public $errors;
+	public $err;
 	
 	/**
 	 * Default 30 minutes
 	 *
 	 * @var integer
 	 */
-	private $activity_timeout = 3600;  // 1800 is 30 minutes has been increased to 1 hour
+	private $activity_timeout = 1800;  // 1800 is 30 minutes has been increased to 1 hour
 	
 	private $last_activity;
 	
@@ -29,7 +32,9 @@ class Session {
 		session_start();
 		$this->check_message();
 		$this->check_errors();
-		//$this->check_data();
+		$this->check_data();
+		$this->check_login();
+		//$this->check_last_activity();
 		//$this->check_login();
 	}
 	
@@ -37,22 +42,19 @@ class Session {
 	 *
 	 * @return boolean
 	 */
-	public function is_logged_in($sheblon=9) {
-		if ($sheblon != $this->security && $this->logged_in) {
-			if ($this->logged_in) {
-				if ($this->check_idleness()) {
-					$this->message("You have been logged out!");
-					$this->logout();
-				} else {
-					$this->message("You have been logged out for 30 minutes of inactivity!");
-					redirect_to("login.php");
-				}
+	public function is_logged_in() {
+// 		log_data_verbose($_SESSION, "Session Variable");
+// 		log_data_verbose($this->logged_in, "This Logged In");
+// 		// log_data_verbose(session_id(), "Session ID");
+//		log_data_verbose(session_name() . "=\"".session_id() . "\"", "Session Name & ID");
+		if ($this->logged_in) {
+			if (!$this->check_idleness()) {
+				$this->message("You have been logged out for 30 minutes of inactivity!");
+				$this->logout();
+				redirect_to("login.php");
 			}
-		} else {
-			//$this->message("You have been logged out!");
-			//$this->logout();
 		}
-		return $this->logged_in;
+		return $this->logged_in();
 	}
 	
 	/**
@@ -60,7 +62,7 @@ class Session {
 	 *
 	 * Default is 1800 seconds which is 30 minutes
 	 *
-	 * To calculate time in from minutes to seconds
+	 * To calculate time-in from minutes to seconds
 	 *
 	 * Minutes * 60 = seconds
 	 *
@@ -91,19 +93,31 @@ class Session {
 	
 	private function check_idleness() {
 		if (isset($this->last_activity)) {
-			if (time() - $this->last_activity > $this->activity_timeout) {
+			if ((time() - $this->last_activity) > $this->activity_timeout) {
 				return false;
 			} else {
-				$_SESSION['last_activity'] = time();
+				$this->last_activity = $_SESSION['last_activity'] = time();
 			}
 		} else {
-			$_SESSION['last_activity'] = time();
+			$this->last_activity = $_SESSION['last_activity'] = time();
 		}
 		return true;
 	}
 	
+	public function get_security() {
+		return $this->security;
+	}
+	
+	public function get_clearance() {
+		return $this->clearance;
+	}
+	
 	public function get_last_activity() {
 		return $this->last_activity;
+	}
+	
+	public function get_full_name() {
+		return $this->name;
 	}
 	
 	/** after user has entered valid username and passcode they will be logged in
@@ -120,25 +134,37 @@ class Session {
 	public function login($user) {
 		// database should find user based on username/password
 		if ($user) {
-			$this->user_id = $_SESSION['user_id'] = (int)$user->id;
+			$this->user_id = $_SESSION['user_id'] = $user->username;
 			$this->name = $_SESSION['name'] = $this->fullname($user);
 			$this->security = $_SESSION['security'] = $user->security;
 			$this->clearance = $_SESSION['clearance'] = $user->clearance;
 			$this->last_activity = $_SESSION['last_activity'] = time();
-			if(isset($user->master)) {
-				$_SESSION['admin_master'] = $user->master;
-				$this->admin_master = ($_SESSION['admin_master']  == 1) ? true : false;
-			} else {
-				$this->admin_master = $_SESSION['admin_master'] = false;
-			}
-			$activity  = ($this->admin_master) ? "" : "User ID: " . $this->user_id . " ";
-			$activity .= ($this->admin_master) ? "" : $this->get_clearance($sheblon) . " ";
-			$activity  .= ($this->admin_master) ? "Admin Master Login" : "Non-Master Login";
-			Activity::user_log($user->id, $activity, $this->get_clearance($sheblon));
-			$this->logged_in = true;
+			$ses_clr = $this->get_user_clearance($user->clearance);
+			$ses_sec = $this->get_user_security($user->security);
+			$activity  = "User-ID: " . $this->user_id . " ";
+			$activity .= "Security: " . $ses_sec->name . " ";
+			$activity .= "Clearance: " . $ses_clr->name . " ";
+			$activity  .= "{$ses_sec->name} Login (time): (" . time() . ")";
+			Activity::user_log($user->id, $activity, $ses_sec->name);
+			$this->logged_in = $_SESSION["logged_in"] = true;
+			
 		} else {
 			$this->logged_in = false;
 		}
+	}
+	
+	public function fullname($obj) {
+		return $obj->get_name(); //"{$obj->fname} {$obj->lname}";
+	}
+	
+	public function get_user_security($sec) {
+		$security = UserValues::get_user_value_by_security($sec);
+		return $security;
+	}
+	
+	public function get_user_clearance($clr) {
+		$clearance = UserAccess::get_user_access_by_clearance($clr);
+		return $clearance;
 	}
 	
 	/** checks login status
@@ -148,7 +174,7 @@ class Session {
 	 *
 	 * @return boolean
 	 */
-	function logged_in() {
+	public function logged_in() {
 		return $this->logged_in;
 	}
 	
@@ -162,19 +188,26 @@ class Session {
 	 */
 	public function logout() {
 		if (isset($this->user_id)) {
-			$activity = ($this->admin_master) ? "" : "User ID: " . $this->user_id . " ";
-			$activity .= ($this->admin_master) ? "Admin Master" : $this->get_clearance($this->security);
+			$ses_sec = $this->get_user_security($this->security);
+			$ses_clr = $this->get_user_clearance($this->clearance);
+			$activity  = "User ID: " . $this->user_id . " ";
+			$activity .= "Security: {$ses_sec->name} ";
+			$activity .= "Clearance: {$ses_clr->name} ";
 			$activity .= " Logged Out";
-			Activity::user_log($this->user_id, $activity, $this->get_clearance($this->security));
+			Activity::user_log($this->user_id, $activity, $ses_sec->name);
 		}
 		unset($_SESSION['user_id']);
+		unset($_SESSION["name"]);
+		unset($_SESSION["security"]);
+		unset($_SESSION["clearance"]);
+		unset($_SESSION["logged_in"]);
+		unset($_SESSION['last_activity']);
 		unset($this->user_id);
 		unset($this->name);
+		unset($this->security);
+		unset($this->clearance);
 		unset($this->logged_in);
 		unset($this->last_activity);
-		unset($_SESSION['last_activity']);
-		unset($_SESSION['admin_master']);
-		$this->logged_in = false;
 	}
 	
 	/** message is used to display any success messages or messages needing to
@@ -201,12 +234,34 @@ class Session {
 		}
 	}
 	
-	public function errors($err=array()) {
-		if (!empty($err)) {
+	public function errors($error=array()) {
+		if (!empty($error)) {
 			// then this is "set error"
-			$_SESSION["errors"] = $err;
+			$_SESSION["errors"] = $error;
 		} else {
-			return $this->errors;
+			// then this is "get error"
+			return $this->err;
+		}
+	}
+	
+	public function data($data=array()) {
+		if (!empty($data)) {
+			// then this is "set data"
+			$_SESSION["data"] = $data;
+		} else {
+			// then this is "get data"
+			return $this->data;
+		}
+	}
+	
+	private function check_last_activity() {
+		// is there last_activity integer stored in the session?
+		if (isset($_SESSION['last_activity'])) {
+			// add it as an attribute and erase the stored version
+			$this->last_activity = $_SESSION['last_activity'];
+			unset($_SESSION['last_activity']);
+		} else {
+			$this->last_activity = 0;
 		}
 	}
 	
@@ -221,14 +276,25 @@ class Session {
 		}
 	}
 	
+	private function check_data() {
+		// is there data stored in the session?
+		if (isset($_SESSION['data'])) {
+			// add it as an attribute and erase the stored version
+			$this->data = $_SESSION['data'];
+			unset($_SESSION['data']);
+		} else {
+			$this->data = "";
+		}
+	}
+	
 	private function check_errors() {
 		// is there an error stored in the session?
 		if (isset($_SESSION["errors"])) {
 			// add it as an attribute and erase the stored version
-			$this->errors = $this->form_errors($_SESSION["errors"]);
+			$this->err = $this->form_errors($_SESSION["errors"]);
 			unset($_SESSION["errors"]);
 		} else {
-			$this->errors = "";
+			$this->err = "";
 		}
 	}
 	
@@ -248,11 +314,35 @@ class Session {
 		return $output;
 	}
 	
+	private function check_login() {
+		if (isset($_SESSION["logged_in"])) {
+			if ($_SESSION["logged_in"]) {
+				$this->logged_in = $_SESSION["logged_in"];
+			}
+		}
+		if (isset($_SESSION["user_id"])) {
+			$this->user_id = $_SESSION["user_id"];
+		}
+		if (isset($_SESSION["name"])) {
+			$this->name = $_SESSION["name"];
+		}
+		if (isset($_SESSION["security"])) {
+			$this->security = $_SESSION["security"];
+		}
+		if (isset($_SESSION["clearance"])) {
+			$this->clearance = $_SESSION["clearance"];
+		}
+		if (isset($_SESSION["last_activity"])) {
+			$this->last_activity = $_SESSION["last_activity"];
+		}
+	}
 	
 }
 
 $session = new Session();
 $message = $session->message();
 $errors = $session->errors();
+$data = $session->data();
+
 
 	

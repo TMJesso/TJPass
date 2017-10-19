@@ -1,7 +1,7 @@
 <?php
 class User extends Common {
 	protected static $table_name = 'user';
-	protected static $db_fields = array('id', 'username', 'passcode', 'date_creat', 'last_update', 'terminate_access', 'pass_count', 'fname', 'lname', 'phone', 'email', 'address', 'city', 'state', 'zip', 'security', 'clearance');
+	protected static $db_fields = array('id', 'username', 'passcode', 'date_create', 'last_update', 'terminate_access', 'pass_count', 'fname', 'lname', 'phone', 'email', 'address', 'city', 'state', 'zip', 'security', 'clearance');
 	
 	public $id;
 	
@@ -9,13 +9,13 @@ class User extends Common {
 	
 	public $passcode;
 	
-	public $date_create = "0000-00-00 00:00:00";
+	public $date_create;
 	
-	public $last_update = "0000-00-00 00:00:00";
+	public $last_update;
 	
-	public $terminate_access = false;
+	public $terminate_access;
 	
-	public $pass_count = 0;
+	public $pass_count;
 	
 	public $fname;
 	
@@ -91,29 +91,46 @@ class User extends Common {
 	
 	
 	private function generate_admin_record() {
-		$obj = new self;
-		$obj->username = "TJAdmin";
-		$passcode = "What is this";
-		$obj->passcode = password_encrypt($obj->username . $passcode);
-		$obj->date_create = now();
-		$obj->last_update = "0000-00-00 00:00:00";
-		$obj->terminate_access = 0;
-		$obj->pass_count = 0;
-		$obj->fname = "Theral";
-		$obj->lname = "Jessop";
-		$obj->phone = "7654502009";
-		$obj->email = "admin@tjpass.com";
-		$obj->address = "PO Box 411";
-		$obj->city = "Kokomo";
-		$obj->state = "IN";
-		$obj->zip = "46903";
-		$obj->security = 0;
-		$obj->clearance = 0;
-		$obj->save();
+		global $base, $session;
+		$sql  = "SELECT COUNT(*) FROM " . self::$table_name;
+		$result = $base->query($sql);
+		$row = $base->fetch_array($result);
+		$num = array_shift($row);
+		if ($num == 0) {
+			$obj = new self;
+			$obj->username = "TJAdmin";
+			$passcode = "3C2015-iuk";
+			$password = $obj->username . $passcode;
+			$obj->passcode = password_encrypt($password);
+			log_data_verbose(date_now(1), "Date Now function(1)");
+			$obj->date_create = date_now(1);
+			$obj->last_update = "0000-00-00 00:00:00";
+			$obj->terminate_access = 0;
+			$obj->pass_count = 0;
+			$obj->fname = "Theral";
+			$obj->lname = "Jessop";
+			$obj->phone = "7654502009";
+			$obj->email = "admin@theraljessop.net";
+			$obj->address = "PO Box 411";
+			$obj->city = "Kokomo";
+			$obj->state = "IN";
+			$obj->zip = "46903";
+			$obj->security = 0;
+			$obj->clearance = 0;
+			if ($obj->save()) {
+				$session->message("Admin user {$obj->username} successfully created");
+				return true;
+			} else {
+				$errors["Admin"] = "Admin user {$obj->username} was NOT created due to an unforseen error";
+				$session->errors($errors);
+				return false;
+			}
+		}
 	}
 	
 	public static function gen_admin() {
-		$this->generate_admin_record();
+		$obj = new self;
+		$obj->generate_admin_record();
 	}
 	
 	public static function get_user_by_username($username) {
@@ -145,4 +162,5 @@ class User extends Common {
 		$row = self::find_by_sql($sql);
 		return array_shift($row);
 	}
+
 }

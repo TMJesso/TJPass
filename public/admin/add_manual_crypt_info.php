@@ -1,6 +1,8 @@
 <?php
 	require_once '../../includes/initialize.php';
-	$breadcrum = "Add Manual Crypto Information";
+	if (!$session->is_logged_in()) { redirect_to("login.php"); }
+	
+	$breadcrum = "Add Manual Crypt Information";
 	$errors = array();
 	$user = User::get_user_by_username("TJAdmin");
 	if (isset($_POST["btn_submit"])) {
@@ -15,7 +17,7 @@
 			$workhorse->link = "#";
 		}
 		$workhorse->link_order = $base->prevent_injection($_POST["txt_link_order"]);
-		$workhorse->crypt_id = chr(mt_rand(65, 90)) . chr(mt_rand(65, 90)) . chr(mt_rand(65, 90)) . "00" . ($num+$workhorse->link_order);
+		$workhorse->crypt_id = generate_random_id() . ($num+$workhorse->link_order);
 		$workhorse->active = 1;
 		if (empty($workhorse->crypt_name) || empty($workhorse->crypt_security) || empty($workhorse->descript) || empty($workhorse->link) || empty($workhorse->link_order)) {
 			$errors['workhorse'] = 'There are Empty Fields detected that are required';

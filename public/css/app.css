@@ -15,3 +15,23 @@ required {
 .small {
 	font-size: .65em;
 }
+
+myname {
+		color:#336633;
+}
+
+footer {
+	font-size:.75em;
+	font-style:italic;
+	color: #005500;
+}
+
+logged {
+	font-size: 75%;
+	color: #888888;
+	/*color: #cacaca; */ }
+
+access {
+	font-size: 90%;
+	color: #888888;
+}

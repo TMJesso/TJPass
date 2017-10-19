@@ -20,17 +20,8 @@ class Activity extends Common {
 		$obj->user_id = $id;
 		$obj->activity = $activity;
 		$obj->user_type = $user_type;
-		$obj->date_stamp = strftime("%Y-%m-%d %H:%M:%S", strtotime(now(), time()));
+		$obj->date_stamp = date_now(1);
 		$obj->save();
-	}
-	
-	private function now() {
-		return date($this->now_format());
-	}
-	
-	private function now_format() {
-		//     "m-d-Y H:i:s"
-		return "m-d-Y H:i:s";
 	}
 	
 }

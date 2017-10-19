@@ -1,14 +1,21 @@
 <?php
 require_once '../../includes/initialize.php';
+if (!$session->is_logged_in()) { redirect_to("login.php"); }
 $breadcrum = "Add / Edit User";
 $users = User::get_all_users(0, 0);
+if (!$users) {
+	UserValues::call_gen_user_values();
+	UserAccess::call_gen_user_access();
+	User::gen_admin();
+	$users = User::get_all_users(0, 0);
+}
 $load_getuser = true;
 if (isset($_POST["submit_user"])) {
 	$load_getuser = false;
 	$user_id = $_POST["select_user"];
 	if ($user_id == "add") {
 		$username = "";
-		$terminate = "";
+		$terminate = 0;
 		$fname = "";
 		$lname = "";
 		$phone = "";
@@ -17,8 +24,10 @@ if (isset($_POST["submit_user"])) {
 		$city = "";
 		$state = "";
 		$zip = "";
-		$security = "";
-		$clearance = "";
+		$security = 9;
+		$clearance = 9;
+		$securities = UserValues::get_all_user_values($security);
+		$clearances = UserAccess::get_all_user_access($clearance);
 	} else {
 		$user = User::get_user_by_id((int)$user_id);
 		$username = $user->username;
@@ -51,6 +60,69 @@ if (isset($_POST["submit_user"])) {
 	$fname = $base->prevent_injection($_POST["txt_fname"]);
 	$lname = $base->prevent_injection($_POST["txt_lname"]);
 	$phone = $base->prevent_injection($_POST["txt_phone"]);
+	$email = $base->prevent_injection($_POST["txt_email"]);
+	$address = (isset($_POST["txt_address"])) ? $base->prevent_injection($_POST["txt_address"]) : "";
+	$city = $base->prevent_injection($_POST["txt_city"]);
+	$state = $_POST["select_state"];
+	$zip = $base->prevent_injection($_POST["txt_zip"]);
+	$security = $_POST["select_security"];
+	$clearance = $_POST["select_clearance"];
+	$user->address = $address;
+	$user->city = $city;
+	$user->clearance = $clearance;
+	$user->email = $email;
+	$user->fname = $fname;
+	$user->lname = $lname;
+	$user->passcode = $passcode;
+	$user->phone = $phone;
+	$user->security = $security;
+	$user->state = $state;
+	$user->terminate_access = $terminate;
+	$user->username = $username;
+	$user->zip = $zip;
+	if ($user->save()) {
+		$session->message("User " . $user->get_name() . " was successfully saved");
+		redirect_to("add_edit_user.php");
+	} else {
+		$data = array("username"=>$username, "address"=>$address, "city"=>$city, "state"=>$state, "zip"=>$zip, "fname"=>$fname, "lname"=>$lname, "phone"=>$phone, "security"=>$security, "clearance"=>$clearance, "terminate"=>$terminate, "email"=>$email);
+		$session->data($data);
+		$errors["user"] = "There was an error saving user " . $user->get_name();
+		redirect_to("add_edit_user.php?data");
+	}
+	
+} elseif (isset($_GET["data"])) {
+	$load_getuser = false;
+	$data = $session->data();
+	if ($data) {
+		$username = $data["username"];
+		$terminate = $data["terminate"];
+		$fname = $data["fname"];
+		$lname = $data["lname"];
+		$phone = $data["phone"];
+		$email = $data["email"];
+		$address = $data["address"];
+		$city = $data["city"];
+		$state = $data["state"];
+		$zip = $data["zip"];
+		$security = $data["security"];
+		$clearance = $data["clearance"];
+	} else {
+		$username = "";
+		$terminate = 0;
+		$fname = "";
+		$lname = "";
+		$phone = "";
+		$email = "";
+		$address = "";
+		$city = "";
+		$state = "";
+		$zip = "";
+		$security = 9;
+		$clearance = 9;
+	}
+	$securities = UserValues::get_all_user_values($security);
+	$clearances = UserAccess::get_all_user_access($clearance);
+	
 }
 
 ?>
@@ -113,14 +185,14 @@ if (isset($_POST["submit_user"])) {
 						<legend>Check to terminate access for this user</legend>
 						<input type="checkbox" name="chk_terminate" id="chk_terminate" value="1" <?php if ($terminate == 1) { ?>checked<?php } ?> />Terminate access
 					</fieldset>
-					
+<!-- Security & Clerance -->					
 					<fieldset class="callout">
 						<legend><required>Security Clearance Values</required></legend>
 						<label for="select_security"><required>Security Values</required>
 							<select name="select_security" id="select_security" required>
 								<option value="">Select Security value</option>
 								<?php foreach ($securities as $sec) { ?>
-									<option value="<?php echo $sec->id;?>" <?php if ($sec->security == $security) { ?>selected <?php } ?>><?php echo $sec->security . ". " . $sec->name; ?></option>
+									<option value="<?php echo $sec->security;?>" <?php if ($sec->security == $security) { ?>selected <?php } ?>><?php echo $sec->security . ". " . $sec->name; ?></option>
 								<?php } ?>								
 							</select>
 							<span class="form-error">
@@ -132,7 +204,7 @@ if (isset($_POST["submit_user"])) {
 							<select name="select_clearance" id="select_clearance" required>
 								<option value="">Select Clearance value</option>
 								<?php foreach ($clearances as $clr) { ?>
-									<option value="<?php echo $clr->id; ?>" <?php if ($clr->clearance == $clearance) { ?> selected <?php } ?>><?php echo $clr->clearance . ". " . $clr->name; ?></option>
+									<option value="<?php echo $clr->clearance; ?>" <?php if ($clr->clearance == $clearance) { ?> selected <?php } ?>><?php echo $clr->clearance . ". " . $clr->name; ?></option>
 								<?php }?>
 							</select>
 							<span class="form-error">

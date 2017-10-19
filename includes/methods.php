@@ -3,8 +3,8 @@
 function log_data_verbose($input, $desc=""){
 	$string_format = var_export($input, true);
 	$file = fopen("\mylog.txt", "a");
-	fwrite($file, "\n{\n" . var_export(date("h:i:s a m/d/y"), true) . " From: " . $_SERVER["REQUEST_URI"] . "\n");
-	fwrite($file, $string_format);
+	fwrite($file, "\n{\n" . var_export(date("h:i:s a m/d/Y"), true) . " From: " . $_SERVER["REQUEST_URI"] . "\n");
+	fwrite($file, "( " . $string_format. " )");
 	if (!empty($desc)) {
 		fwrite($file, "\n[ " . $desc . " ]\n }\n\n");
 	} else {
@@ -47,7 +47,7 @@ function password_encrypt($password) {
  */
 function password_check($password, $existing_hash) {
 	$hash = password_verify($password, $existing_hash); // php7 builtin password verification
-	if ($hash === $existing_hash) {
+	if ($hash) {
 		return true;
 	} else {
 		return false;
@@ -153,9 +153,11 @@ function get_states() {
 
 function login_failure($found_user, $username, $sheblon) {
 	global $session;
+	$sec_val = $session->get_user_security($found_user->security);
+	$clr_val = $session->get_user_clearance($found_user->clearance);
 	if ($found_user) {
-		$activity = "User ID: {$found_user->id} {$found_user->username} a {$session->get_clearance($sheblon)} has passcode failure";
-		Activity::user_log($found_user->id, $activity, $found_user->security);
+		$activity = "User ID: {$found_user->id} {$found_user->username} a {$sec_val->name} has passcode failure";
+		Activity::user_log($found_user->id, $activity, $sec_val->name);
 	} else {
 		$activity = "Unknown username '{$username}'";
 		Activity::user_log(0, $activity, "Unknown");
@@ -166,13 +168,21 @@ function login_failure($found_user, $username, $sheblon) {
  * 
  * @return string
  */
-function now() {
-	return date(now_format());
+function date_now($num=0) {
+	if ($num == 0) {
+		return date(now_format($num), time());
+	} elseif ($num == 1) {
+		return strftime(now_format($num), time());
+	}
 }
 
-function now_format() {
+function now_format($num=0) {
 	//"m-d-Y H:i:s"
-	return "Y-m-d H:i:s";
+	if ($num == 0) {
+		return "Y-m-d H:i:s";
+	} elseif ($num == 1) {
+		return "%Y-%m-%d %H:%M:%S";
+	}
 }
 
 function set_required() {
@@ -181,6 +191,138 @@ function set_required() {
 	<?php 
 }
 
+function generate_random_id() {
+	return chr(mt_rand(65, 90)) . chr(mt_rand(65, 90)) . chr(mt_rand(65, 90)) . "00";
+}
+
+function get_user_type($obj, $sec) {
+	$val = $obj->get_user_security($sec);
+	return $val->name;
+}
+
+function navigation() {
+	global $session;
+	?>
+<?php $menus = Menu::find_all_by_security_visible($session->get_security(), $session->get_clearance(), true); // menu table ?>
+<?php if (!$menus) { ?>
+	<?php return; ?>
+<?php } ?>
+<div class="row">
+	<div class="large-12 medium-12 columns">	
+		<div class="top-bar" data-responsive-toggle="main_menu" data-hide-for="medium">
+			<button class="menu-icon" type="button" data-toggle></button>
+			<div class="title-bar-title text-left">&nbsp;&nbsp;Menu</div>
+		</div>
+		<div class="top-bar" id="main_menu">
+			<div class="top-bar-left">
+				<ul class="dropdown menu" data-dropdown-menu>
+					<li class="menu-text" style="font-size: .83em;"><?php echo get_user_type($obj = new UserValues(), $session->get_security()); ?></li>
+					<?php foreach($menus as $drop_menu) { 
+						$submenu = Submenu::find_all_by_menu_id($drop_menu->menu_id, $session->get_security(), $session->get_clearance()); 
+						//if ($drop_menu->admin_only == 0 || ($admin)) {
+							if ($session->get_security() == 9) { ?>
+								<li><a href="<?php echo $drop_menu->url; ?>" class="small button"><?php echo $drop_menu->link_text; ?></a>
+								<?php if ($submenu) { ?>
+									<ul class="menu vertical">
+										<?php foreach ($submenu as $nextmenu) {
+											//if ($nextmenu->admin_only==0 || ($admin)) { ?>
+												<li><a href="<?php echo $nextmenu->url; ?>"><?php echo $nextmenu->link_text; ?></a></li>
+											<?php //} ?>
+										<?php } ?>
+									</ul>
+								<?php } ?>
+								</li>
+							<?php } else { ?>
+								<li><a href="<?php echo $drop_menu->url; ?>" class="small button"><?php echo $drop_menu->link_text; ?></a>
+									<?php if ($submenu) { ?>
+										<ul class="menu vertical">
+											<?php foreach ($submenu as $nextmenu) { ?>
+												<?php //if ($nextmenu->admin_only == 0 || ($admin)) { ?>
+													<li><a href="<?php echo $nextmenu->url; ?>"><?php echo $nextmenu->link_text; ?></a></li>
+												<?php //} ?>
+											<?php } ?>
+										</ul>
+									<?php } ?>
+								</li>
+							<?php } ?>
+						<?php //} ?>
+					<?php } ?>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+	<?php 
+	
+}
 
 
+function load_you_are_here($yourehere) {
+	global $breadcrumbs, $session;
+	$link_text = "broken";
+	$submenu = Submenu::find_all_for_url($yourehere, $session->get_clearance(), $session->get_security());
+	if ($submenu) {
+		$sub = $submenu->submenu_id;
+		$detail = $submenu->menu_id;
+		$link_text = $submenu->link_text;
+	} else {
+		$sub = null;
+		$menu = Menu::find_menu_detail_by_linktext($yourehere, $session->get_clearance(), $session->get_security());
+		if ($menu) {
+			$detail = $menu->menu_id;
+			$link_text = $menu->link_text;
+		} else {
+			$detail = null;
+		}
+	}
+	$breadcrumbs = admin_breadcrumbs($detail, $sub, $link_text);
+	
+}
+
+// all regular breadcrumbs are used by this function
+function admin_breadcrumbs($detail, $submenu, $breadcrum) {
+	global $session;
+	$home_menu = Menu::find_all_by_url("index.php", $session->get_clearance(), $session->get_security());
+	$detail_menu = new Menu();
+	$sub_menu = new Submenu();
+	$output  = "<logged>{$session->get_full_name()}</logged> <access>" . get_access_level() . "</access>";
+	$output .= "<ul class=\"breadcrumbs\">";
+	$output .= "<li ";
+	if (is_null($detail) && is_null($submenu)) {
+		$output .= "class=\"disabled\">";
+		$output .= "{$breadcrum}</li></ul>";
+		return $output;
+	} elseif (!is_null($detail) && is_null($submenu)) {
+		$detail_menu = Menu::find_by_menu_id($detail);
+		if ($breadcrum == "Home") {
+			$output .= "<li class=\"disabled\">";
+			$output .= "{$breadcrum}</li></ul>";
+			return $output;
+		} else {
+			$output .= "><a href=\"{$home_menu->url}\" title=\"{$home_menu->link_text}\">{$home_menu->link_text}</a></li>";
+			$output .= "<li class=\"disabled\" title=\"{$detail_menu->link_text}\">{$detail_menu->link_text}</li></ul>";
+			return $output;
+		}
+		
+		
+	} elseif (!is_null($detail) && !is_null($submenu)) {
+		$detail_menu = Menu::find_by_menu_id($detail);
+		$sub_menu = Submenu::find_by_submenu_id($submenu);
+		$output .= "><a href=\"{$home_menu->url}\" title=\"{$home_menu->link_text}\">{$home_menu->link_text}</a></li>";
+		$output .= "<li><a href=\"{$detail_menu->url}\" title=\"{$detail_menu->link_text}\">{$detail_menu->link_text}</a></li>";
+		$output .= "<li class=\"disabled\" title=\"{$sub_menu->link_text}\">{$sub_menu->link_text}</li></ul>";
+		return $output;
+	}
+}
+
+
+function get_access_level() {
+	global $session;
+	$uservalue = UserValues::get_user_value_by_security($session->get_security());
+	return $uservalue->name;
+}
+
+function get_script_name() {
+	return substr($_SERVER['SCRIPT_FILENAME'],strrpos($_SERVER['SCRIPT_FILENAME'],'/')+1,strlen($_SERVER['SCRIPT_FILENAME']));
+}
 

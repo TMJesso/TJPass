@@ -24,6 +24,27 @@ class Workhorse extends Common {
 		return array_shift($row);
 	}
 	
+	public static function get_all_crypt_values_for_active_by_linkorder($username) {
+		$sql  = "SELECT * FROM " . self::$table_name;
+		$sql .= " WHERE active";
+		$sql .= " AND BINARY username = '{$username}'";
+		$sql .= " ORDER BY link_order";
+		return self::find_by_sql($sql);
+	}
 	
+	public static function get_all_crypt_values_for_active_by_descrpt($username) {
+		$sql  = "SELECT * FROM " . self::$table_name;
+		$sql .= " WHERE active";
+		$sql .= " AND BINARY username = '{$username}'";
+		$sql .= " ORDER BY descript";
+		return self::find_by_sql($sql);
+	}
 	
+	public static function get_crypt_value_by_crypt_id($id) {
+		$sql  = "SELECT * FROM " . self::$table_name;
+		$sql .= " WHERE BINARY crypt_id = '{$id}'";
+		$sql .= " LIMIT 1";
+		$row = self::find_by_sql($sql);
+		return ($row) ? array_shift($row) : false;
+	}
 }

@@ -1,5 +1,7 @@
 <?php
-global $session, $breadcrum;
+global $session, $breadcrum, $errors;
+$B = get_script_name();
+
 
 ?>
 <!DOCTYPE html>
@@ -24,14 +26,19 @@ Updated: September 27, 2017
 	<body>
 		<div class="row">
 			<div class="large-12 medium-12 columns">
-				<h1 class="text-center">TJ Password Tracker</h1>
+				<h1 class="text-center">Password Tracker</h1>
 			</div>
+		</div>
+		<?php if ($B !="login.php") { ?>
+		<?php navigation(); ?>
+		<?php } ?>
+		<div class="row">
 			<div class="large-3 medium-3 columns">
 				&nbsp;
 			</div>
 			<div class="large-6 medium-6 columns text-center">
 				<?php echo html_entity_decode(output_message($session->message)); ?>
-				<?php echo output_errors($session->errors);?>
+				<?php echo output_errors($session->err);?>
 			<!-- Do not remove Error and Message Section -->
 			</div>
 			<div class="large-3 medium-3 columns">

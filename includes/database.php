@@ -107,6 +107,36 @@ class Cypress extends Common {
 		while ($loop_value) {
 			switch ($num) {
 				case 0:
+					$name = 'user_values';
+					
+					$sql  = 'CREATE TABLE IF NOT EXISTS ' . $name . ' ( ';
+					$sql .= 'id int(11) NOT NULL AUTO_INCREMENT, ';
+					$sql .= 'security int(1) NOT NULL, ';
+					$sql .= 'name varchar(15) NOT NULL, ';
+					$sql .= 'PRIMARY KEY (security), ';
+					$sql .= 'UNIQUE INDEX id (id), ';
+					$sql .= 'INDEX name (name)) ';
+					$sql .= 'ENGINE=InnoDB DEFAULT CHARSET=utf8';
+					$collect_boolean[$num]["passed"] = ($this->query($sql)) ? true : false;
+					$collect_boolean[$num]["db_name"] = $name;
+					break;
+					
+				case 1:
+					$name = 'access_values';
+					
+					$sql  = 'CREATE TABLE IF NOT EXISTS ' . $name . ' ( ';
+					$sql .= 'id int(11) NOT NULL AUTO_INCREMENT, ';
+					$sql .= 'clearance int(1) NOT NULL, ';
+					$sql .= 'name varchar(15) NOT NULL, ';
+					$sql .= 'PRIMARY KEY (clearance), ';
+					$sql .= 'UNIQUE INDEX id (id), ';
+					$sql .= 'INDEX name (name)) ';
+					$sql .= 'ENGINE=InnoDB DEFAULT CHARSET=utf8';
+					$collect_boolean[$num]["passed"] = ($this->query($sql)) ? true : false;
+					$collect_boolean[$num]["db_name"] = $name;
+					break;
+					
+				case 2:
 					$name = 'user';
 					
 					$sql  = 'CREATE TABLE IF NOT EXISTS ' . $name . ' ( ';
@@ -116,7 +146,7 @@ class Cypress extends Common {
 					$sql .= 'date_create datetime NOT NULL, ';
 					$sql .= 'last_update datetime NOT NULL, ';
 					$sql .= 'terminate_access tinyint(1) NOT NULL DEFAULT 0, ';
-					$sql .= 'count_pass int(1) NOT NULL DEFAULT 0, ';
+					$sql .= 'pass_count int(1) NOT NULL DEFAULT 0, ';
 					$sql .= 'fname varchar(20) NOT NULL, ';
 					$sql .= 'lname varchar(20) NOT NULL, ';
 					$sql .= 'phone varchar(10) NOT NULL, ';
@@ -131,13 +161,15 @@ class Cypress extends Common {
 					$sql .= 'UNIQUE INDEX id (id), ';
 					$sql .= 'INDEX full_name (fname, lname), ';
 					$sql .= 'INDEX reverse_name (lname, fname), ';
-					$sql .= 'INDEX state (state, city)) ';
+					$sql .= 'INDEX state (state, city), ';
+					$sql .= 'FOREIGN KEY (security) REFERENCES user_values (security), ';
+					$sql .= 'FOREIGN KEY (clearance) REFERENCES access_values (clearance)) ';
 					$sql .= 'ENGINE=Innodb DEFAULT CHARSET=utf8';
 					$collect_boolean[$num]["passed"] = ($this->query($sql)) ? true : false;
 					$collect_boolean[$num]["db_name"] = $name;
 					break;
 					
-				case 1:
+				case 3:
 					$name = 'crypt_values';
 					
 					$sql  = 'CREATE TABLE IF NOT EXISTS ' . $name . ' ( ';
@@ -161,36 +193,6 @@ class Cypress extends Common {
 					$collect_boolean[$num]["db_name"] = $name;
 					break;
 					
-				case 2:
-					$name = 'user_values';
-					
-					$sql  = 'CREATE TABLE IF NOT EXISTS ' . $name . ' ( ';
-					$sql .= 'id int(11) NOT NULL AUTO_INCREMENT, ';
-					$sql .= 'security int(1) NOT NULL, ';
-					$sql .= 'name varchar(15) NOT NULL, ';
-					$sql .= 'PRIMARY KEY (security), ';
-					$sql .= 'UNIQUE INDEX id (id), ';
-					$sql .= 'INDEX name (name)) ';
-					$sql .= 'ENGINE=InnoDB DEFAULT CHARSET=utf8';
-					$collect_boolean[$num]["passed"] = ($this->query($sql)) ? true : false;
-					$collect_boolean[$num]["db_name"] = $name;
-					break;
-					
-				case 3:
-					$name = 'access_values';
-					
-					$sql  = 'CREATE TABLE IF NOT EXISTS ' . $name . ' ( ';
-					$sql .= 'id int(11) NOT NULL AUTO_INCREMENT, ';
-					$sql .= 'clearance int(1) NOT NULL, ';
-					$sql .= 'name varchar(15) NOT NULL, ';
-					$sql .= 'PRIMARY KEY (clearance), ';
-					$sql .= 'UNIQUE INDEX id (id), ';
-					$sql .= 'INDEX name (name)) ';
-					$sql .= 'ENGINE=InnoDB DEFAULT CHARSET=utf8';
-					$collect_boolean[$num]["passed"] = ($this->query($sql)) ? true : false;
-					$collect_boolean[$num]["db_name"] = $name;
-					break;
-					
 				case 4:
 					$name = 'user_log';
 					
@@ -202,6 +204,54 @@ class Cypress extends Common {
 					$sql .= 'activity text null, ';
 					$sql .= 'primary key (id), ';
 					$sql .= 'index user_id (user_id)) ';
+					$sql .= 'ENGINE=innodb DEFAULT CHARSET=utf8';
+					$collect_boolean[$num]["passed"] = ($this->query($sql)) ? true : false;
+					$collect_boolean[$num]["db_name"] = $name;
+					break;
+					
+				case 5:
+					$name = "menu";
+					$sql  = 'create table if not exists ' . $name . ' ( ';
+					$sql .= 'id int(11) not null auto_increment, ';
+					$sql .= 'menu_id varchar(11) not null, ';
+					$sql .= 'url varchar(50) not null, ';
+					$sql .= 'find_text varchar(40) not null, ';
+					$sql .= 'link_text varchar(20) not null, ';
+					$sql .= 'menu_order int(2) not null, ';
+					$sql .= 'visible tinyint(1) not null, ';
+					$sql .= 'security int(1) not null, ';
+					$sql .= 'clearance int(1) not null, ';
+					$sql .= 'primary key (menu_id), ';
+					$sql .= 'UNIQUE INDEX id (id), ';
+					$sql .= 'INDEX find_text (find_text), ';
+					$sql .= 'INDEX link_text (link_text), ';
+					$sql .= 'FOREIGN KEY (security) REFERENCES user_values (security), ';
+					$sql .= 'FOREIGN KEY (clearance) REFERENCES access_values(clearance)) ';
+					$sql .= 'ENGINE=innodb DEFAULT CHARSET=utf8';
+					$collect_boolean[$num]["passed"] = ($this->query($sql)) ? true : false;
+					$collect_boolean[$num]["db_name"] = $name;
+					break;
+					
+				case 6:
+					$name = "submenu";
+					$sql  = 'create table if not exists ' . $name . ' ( ';
+					$sql .= 'id int(11) not null auto_increment, ';
+					$sql .= 'submenu_id varchar(11) not null, ';
+					$sql .= 'menu_id varchar(11) not null, ';
+					$sql .= 'url varchar(50) not null, ';
+					$sql .= 'link_text varchar(50) not null, ';
+					$sql .= 'position int(2) not null, ';
+					$sql .= 'visible tinyint(1) not null, ';
+					$sql .= 'security int(1) not null, ';
+					$sql .= 'clearance int(1) not null, ';
+					$sql .= 'primary key (submenu_id), ';
+					$sql .= 'UNIQUE INDEX id (id),';
+					$sql .= 'INDEX link_text (link_text), ';
+					$sql .= 'INDEX security (security), ';
+					$sql .= 'INDEX clearance (clearance), ';
+					$sql .= 'FOREIGN KEY (menu_id) REFERENCES menu (menu_id), ';
+					$sql .= 'FOREIGN KEY (security) REFERENCES user_values (security), ';
+					$sql .= 'FOREIGN KEY (clearance) REFERENCES access_values (clearance)) ';
 					$sql .= 'ENGINE=innodb DEFAULT CHARSET=utf8';
 					$collect_boolean[$num]["passed"] = ($this->query($sql)) ? true : false;
 					$collect_boolean[$num]["db_name"] = $name;
