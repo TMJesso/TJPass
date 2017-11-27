@@ -1,9 +1,9 @@
 <?php
 $errors = array();
 defined('DS') ? null : define('DS', DIRECTORY_SEPARATOR);
-if ($_SERVER["SERVER_NAME"] == "theraljessop.net") { 
-	defined('SITE_ROOT') ? null : define('SITE_ROOT', $_SERVER["DOCUMENT_ROOT"] . DS . 'userking');
-	defined('SITE_HTTP') ? null : define('SITE_HTTP', DS.'userking'.DS);
+if ($_SERVER["SERVER_NAME"] == "theraljessop.net" || $_SERVER["SERVER_NAME"] == "theraljessopnet.ipage.com") { 
+	defined('SITE_ROOT') ? null : define('SITE_ROOT', $_SERVER["DOCUMENT_ROOT"] . DS . 'tjnet');
+	defined('SITE_HTTP') ? null : define('SITE_HTTP', DS.'tjnet'.DS);
 } else { 
 	defined('SITE_ROOT') ? null : define('SITE_ROOT', $_SERVER["DOCUMENT_ROOT"] . DS . 'TJPass');
 	defined('SITE_HTTP') ? null : define('SITE_HTTP', DS.'TJPass'.DS);
@@ -31,7 +31,9 @@ require_once LIB_PATH . 'uservalues.php';
 require_once LIB_PATH . 'useraccess.php';
 require_once LIB_PATH . 'menu.php';
 require_once LIB_PATH . 'submenu.php';
-
+require_once LIB_PATH . 'subject.php';
+require_once LIB_PATH . 'pages.php';
+require_once LIB_PATH . 'photo.php';
 
 ?>
 

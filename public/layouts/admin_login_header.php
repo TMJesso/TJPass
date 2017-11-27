@@ -1,6 +1,5 @@
 <?php
-global $session, $breadcrum, $errors;
-$B = get_script_name();
+global $session, $errors;
 
 
 ?>
@@ -29,9 +28,6 @@ Updated: September 27, 2017
 				<h1 class="text-center">Jessop Computer Services</h1>
 			</div>
 		</div>
-		<?php if ($B !="login.php") { ?>
-		<?php navigation(); ?>
-		<?php } ?>
 		<div class="row">
 			<div class="large-3 medium-3 columns">
 				&nbsp;
@@ -43,9 +39,6 @@ Updated: September 27, 2017
 			</div>
 			<div class="large-3 medium-3 columns">
 				&nbsp;
-			</div>
-			<div class="large-12 medium-12 columns">
-				<h3 class="text-center"><?php echo $breadcrum; ?></h3>
 			</div>
 		</div>
 	

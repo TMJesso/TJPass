@@ -256,6 +256,45 @@ function navigation() {
 	
 }
 
+function content_navigation($subjects) {
+    ?>
+    <div class="row">
+	<div class="large-1 medium-1 columns">
+		&nbsp;
+	</div>
+	<div class="large-10 medium-10 columns">
+		<div class="top-bar" data-responsive-toggle="subject_menu" data-hide-for="medium">
+			<button class="menu-icon" type="button" data-toggle></button>
+			<div class="title-bar-title text-left">&nbsp;&nbsp;Menu</div>
+		</div>
+		<div class="top-bar" id="subject_menu">
+			<div class="top-bar-left">
+				<ul class="dropdown menu" data-dropdown-menu>
+					<li class="menu-text" style="font-size: .83em;">Subjects</li>
+					<?php foreach ($subjects as $subject) { ?>
+						<?php $pages = Page::get_all_pages_by_subject_id($subject->id); ?>
+						<li><a href="add_edit_content.php?subject=<?php echo $subject->id;?>" class="editbutton"><?php echo hdent($subject->menu_name); ?></a>
+							<?php if ($pages) { ?>
+								<ul class="menu vertical">
+									<?php foreach ($pages as $page) { ?>
+										<li><a href="add_edit_content.php?page=<?php echo $page->id; ?>" class="small editbutton"><?php echo hdent($page->menu_name); ?></a></li>
+									<?php } ?>
+								</ul>
+							<?php } ?>
+						</li>
+					<?php } ?>
+				</ul>
+			</div>
+		</div>
+	</div>
+	<div class="large-1 medium-1 columns">
+		&nbsp;
+	</div>
+	
+</div>
+    
+    <?php 
+}
 
 function load_you_are_here($yourehere) {
 	global $breadcrumbs, $session;
@@ -315,6 +354,44 @@ function admin_breadcrumbs($detail, $submenu, $breadcrum) {
 	}
 }
 
+/** html enties encode
+ *
+ *
+ * @param string $entities
+ * @param int $ent default ENT_QUOTES
+ * @return string
+ */
+function hent($entities, $ent=ENT_QUOTES) {
+	return htmlentities($entities, $ent);
+}
+
+/** html entities decode
+ *
+ * @param string $entities
+ * @param int $ent default = ENT_QUOTES
+ * @return string
+ */
+function hdent($entities, $ent=ENT_QUOTES) {
+	return html_entity_decode($entities, $ent);
+}
+
+/** urlencode
+ *
+ * @param string $code
+ * @return string
+ */
+function ucode($code) {
+	return urlencode($code);
+}
+
+/** urldecode
+ *
+ * @param string $code
+ * @return string
+ */
+function udcode($code) {
+	return urldecode($code);
+}
 
 function get_access_level() {
 	global $session;
@@ -325,4 +402,57 @@ function get_access_level() {
 function get_script_name() {
 	return substr($_SERVER['SCRIPT_FILENAME'],strrpos($_SERVER['SCRIPT_FILENAME'],'/')+1,strlen($_SERVER['SCRIPT_FILENAME']));
 }
+
+function ask_permission($obj, $who) {
+	// delete subject
+	// delete pages for subject
+	// delete photos for pages if there are any
+	switch ($who) {
+		case 1: // subject
+			$file_name = "delete_subject.php";
+			break;
+			
+		case 2: // pages
+			$file_name = "delete_page.php";
+			break;
+			
+		default :
+			$file_name = "404.php";
+			break;
+			
+	}
+	?>
+	<?php include_layout_template('admin_login_header.php')?>
+	<div class="row">
+	<div class="large-12 medium-12 columns">
+	<form data-abide novalidate action="<?php echo $file_name; ?>?sid=<?php echo $obj->id; ?>" method="post">
+	<div data-abide-error class="alert callout" style="display: none;">
+	<p><i class="fi-alert"></i> There are some errors in your form.</p>
+	</div>
+	<div class="warning callout text-center">
+	<h3><required>Proceed with caution</required></h3>
+	Once pages are removed they will be gone <underline>forever</underline><br>
+	<required>and cannot be retreived</required>!
+	</div>
+	<label for="remove_pages"></label>
+	<select name="remove_pages" id="remove_pages" required>
+	<option value="">Remove all pages for <?php echo $obj->menu_name; ?> </option>
+				<option value="1">Yes - I understand - REMOVE ALL PAGES and PHOTOS for <?php echo $obj->menu_name; ?></option>
+				<option value="0">No - I want to keep the pages</option>
+			</select>
+			<span class="form-error">
+				You must choose yes or no!
+			</span>
+			<div class="text-center">
+				<input type="submit" name="submit_permission" class="button" value="Submit" />
+			</div>
+		</form>
+	</div>
+</div>
+<?php include_layout_template("admin_footer.php");
+	
+}
+
+
+?>
 

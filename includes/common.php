@@ -53,6 +53,14 @@ class Common {
 		return $clean_attributes;
 	}
 	
+	public static function find_max_id() {
+		global $base;
+		$sql  = "SELECT MAX(id) FROM " . static::$table_name;
+		$results = $base->query($sql);
+		$row = ($results) ? $base->fetch_array($results) : 0;
+		return is_array($row) ? array_shift($row) : $row;
+	}
+	
 	public function save() {
 		// A new record won't have an id yet.
 		return (isset($this->id)) ? $this->update() : $this->create();

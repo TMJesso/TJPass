@@ -54,18 +54,27 @@ class Submenu extends Common {
 		return ($row) ? array_shift($row): false;
 	}
 	
-	public static function find_max_id() {
-		global $base;
-		$sql  = "SELECT MAX(id) FROM " . self::$table_name;
-		$results = $base->query($sql);
-		$row = ($results) ? $base->fetch_array($results) : 0; 
-		return is_array($row) ? array_shift($row) : $row;
-	}
-	
 	public static function find_by_submenu_id($submenu_id) {
 		$sql  = "SELECT * FROM " . self::$table_name;
 		$sql .= " WHERE submenu_id = '{$submenu_id}'";
 		$sql .= " LIMI 1";
+		$row = self::find_by_sql($sql);
+		return array_shift($row);
+	}
+
+	public static function find_all_by_id_for_menu($id) {
+		$sql  = "SELECT * FROM " . self::$table_name;
+		$sql .= " WHERE menu_id = ";
+		$sql .= " (SELECT menu_id FROM menu";
+		$sql .= " WHERE id = {$id})";
+		$sql .= " ORDER BY position";
+		return self::find_by_sql($sql);
+	}
+	
+	public static function find_by_id($id) {
+		$sql  = "SELECT * FROM " . self::$table_name;
+		$sql .= " WHERE id = {$id}";
+		$sql .= " LIMIT 1";
 		$row = self::find_by_sql($sql);
 		return array_shift($row);
 	}

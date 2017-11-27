@@ -35,3 +35,58 @@ access {
 	font-size: 90%;
 	color: #888888;
 }
+
+.button {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 0 1rem 0;
+  margin-right: 10px;
+  font-family: inherit;
+  padding: 0.85em 1em;
+  -webkit-appearance: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  transition: background-color 0.25s ease-out, color 0.25s ease-out;
+  font-size: 0.9rem;
+  line-height: 1;
+  text-align: center;
+  cursor: pointer;
+  background-color: #0cd306;
+  color: #fefefe; }
+
+
+.editbutton {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 0 1rem 0;
+  margin-right: 2px;
+  font-family: inherit;
+  padding: 0.85em 1em;
+  -webkit-appearance: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  transition: background-color 0.25s ease-out, color 0.25s ease-out;
+  font-size: 0.9rem;
+  line-height: 1;
+  text-align: center;
+  cursor: pointer;
+  background-color: #0cd306;
+  color: #fefefe; }
+
+.newbutton {
+  display: inline-block;
+  vertical-align: middle;
+  margin: 0 0 1rem 0;
+  margin-right: 2px;
+  font-family: inherit;
+  padding: 0.85em 1em;
+  -webkit-appearance: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  transition: background-color 0.25s ease-out, color 0.25s ease-out;
+  font-size: 0.9rem;
+  line-height: 1;
+  text-align: center;
+  cursor: pointer;
+  background-color: #0cd306;
+  color: #ff0000; }

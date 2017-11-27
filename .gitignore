@@ -1,3 +1,7 @@
 phpini
 sandbox
 cgi_error_log
+backup
+
+.project
+.settings
