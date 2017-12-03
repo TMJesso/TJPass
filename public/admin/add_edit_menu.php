@@ -50,18 +50,6 @@ if (isset($_POST["submit_menu"])) {
 		$menu = Menu::find_by_id($mid);
 		$has_menu = Submenu::find_all_by_menu_id($menu->menu_id, $session->get_security(), $session->get_clearance(), true);
 		$submenus = Submenu::find_all_by_id_for_menu($menu->id);
-		
-	
-// 		$loadsubmenu = true;
-// 		$submenu = new Submenu();
-// 		$menu = Menu::find_by_id($_POST["select_menu"]);
-// 		$has_menu = Submenu::find_all_by_menu_id($menu->menu_id, $session->get_security(), $session->get_clearance(), true);
-// 		$submenu->clearance = $menu->clearance;
-// 		$submenu->security = $menu->security;
-// 		$submenu->menu_id = $menu->menu_id;
-// 		$submenu->visible = 1;
-// 		$num = Submenu::find_max_id() + 1000;
-// 		$submenu->submenu_id = generate_random_id() . ($num + 1);
 	}
 	
 } elseif (isset($_POST["submit_select_submenu"])) { 
@@ -89,24 +77,6 @@ if (isset($_POST["submit_menu"])) {
 	}
 	
 	
-// 	$submenu = new Submenu();
-// 	$submenu->id = null;
-// 	$submenu->submenu_id = $_POST["hidden_submenu_id"];
-// 	$submenu->menu_id = $_POST["hidden_menu_id"];
-// 	$submenu->url = $base->prevent_injection($_POST["txt_url"]);
-// 	$submenu->link_text = $base->prevent_injection($_POST["txt_link_text"]);
-// 	$submenu->position = $_POST["select_position"];
-// 	$submenu->visible = (isset($_POST["chk_box_visible"])) ? $_POST["chk_box_visible"] : 0;
-// 	$submenu->security = $_POST["select_security"];
-// 	$submenu->clearance = $_POST["select_clearance"];
-// 	if ($submenu->save()) {
-// 		$session->message("Submenu item {$submenu->link_text} was successfully saved!");
-// 		redirect_to("add_edit_menu.php");
-// 	} else {
-// 		$errors["submenu"] = "There was an error saving Submenu item {$submenu->link_text}";
-// 		$session->errors($errors);
-// 		redirect_to("add_edit_menu.php");
-// 	}
 } elseif (isset($_GET["mid"]) && isset($_POST['submit_submenu']) && isset($_GET['subid'])) {
 	$menu = Menu::find_by_id(hent(ucode($_GET['mid'])));
 
@@ -120,7 +90,6 @@ if (isset($_POST["submit_menu"])) {
 	$submenu->clearance = $_POST['select_clearance'];
 	$submenu->security = $_POST['select_security'];
 	$submenu->not_logged_in = (int)(isset($_POST['chk_box_not_logged_in'])) ? $_POST['chk_box_not_logged_in'] : 0;
-	log_data_verbose($submenu, "Submenu from add_edit_menu.php on line 123");
 	if ($submenu->save()) {
 		$message  = "Submenu <strong>{$submenu->link_text}</strong> has been saved for ";
 		$message .= "Menu <strong>{$menu->link_text}</strong>";
