@@ -71,7 +71,7 @@ if (isset($_POST["submit_menu"])) {
 	if ($_POST["select_submenu"] == "new" && !isset($_POST["chk_box_subedit"])) { 
 		$loadsubmenu = true;
 		$loadedit = false;
-		$menu = Menu::find_by_id($base->prevent_injection($_GET["mid"]));
+		$menu = Menu::find_by_id(hent(ucode($_GET["mid"])));
 		//$has_menu = Submenu::find_all_by_menu_id($menu->menu_id, $session->get_security(), $session->get_clearance(), true);
 		$submenu = new Submenu();
 		$submenu->clearance = $menu->clearance;
@@ -107,8 +107,30 @@ if (isset($_POST["submit_menu"])) {
 // 		$session->errors($errors);
 // 		redirect_to("add_edit_menu.php");
 // 	}
-} elseif (isset($_GET["mid"])) {
-	
+} elseif (isset($_GET["mid"]) && isset($_POST['submit_submenu']) && isset($_GET['subid'])) {
+	$menu = Menu::find_by_id(hent(ucode($_GET['mid'])));
+
+	$submenu = new Submenu();
+	$submenu->submenu_id = hent(ucode($_GET['subid']));
+	$submenu->menu_id = $menu->menu_id;
+	$submenu->url = hent($_POST['txt_url']);
+	$submenu->link_text = hent($_POST['txt_link_text']);
+	$submenu->position = $_POST['select_position'];
+	$submenu->visible = $_POST['chk_box_visible'];
+	$submenu->clearance = $_POST['select_clearance'];
+	$submenu->security = $_POST['select_security'];
+	$submenu->not_logged_in = (int)(isset($_POST['chk_box_not_logged_in'])) ? $_POST['chk_box_not_logged_in'] : 0;
+	log_data_verbose($submenu, "Submenu from add_edit_menu.php on line 123");
+	if ($submenu->save()) {
+		$message  = "Submenu <strong>{$submenu->link_text}</strong> has been saved for ";
+		$message .= "Menu <strong>{$menu->link_text}</strong>";
+		$session->message($message);
+		redirect_to('add_edit_menu.php');
+	} else {
+		$errors['Submenu'] = "Submenu {$submenu->link_text} was not saved because of an unforseen error";
+		$session->errors($errors);
+		redirect_to('add_edit_menu.php');
+	}
 } else {
 	$menus = Menu::find_all_by_security_for_menus($session->get_security());
 	$load = true;
@@ -118,6 +140,9 @@ if (isset($_POST["submit_menu"])) {
 ?>
 
 <?php include_layout_template("admin_header.php"); ?>
+
+<!-- Menu -->
+
 <?php if ($load && !$loadsubmenu) { // choose add or edit a menu ?>
 <div class="row">
 	<div class="large-3 medium-3 columns">
@@ -155,13 +180,16 @@ if (isset($_POST["submit_menu"])) {
 		&nbsp;
 	</div>
 </div>
+
+<!-- Submenu -->
+
 <?php } elseif (!$load && $loadsubmenu) { // add or edit submenu ?>
 <div class="row">
 	<div class="large-3 medium-3 columns">
 		&nbsp;
 	</div>
 	<div class="large-6 medium-6 columns">
-		<form data-abide novalidate action="add_edit_menu.php<?php echo "?mid=".$menu->id;?>" method="post">
+		<form data-abide novalidate action="add_edit_menu.php<?php echo "?mid=".$menu->id . "&subid=" . $submenu->submenu_id;?>" method="post">
 			<div data-abide-error class="alert callout" style="display: none;">
 				<p><i class="fi-alert"></i> There are some errors in your form.</p>
 			</div>
@@ -170,10 +198,8 @@ if (isset($_POST["submit_menu"])) {
 			</label>
 			<label for="txt_submenu_id">Unique ID
 				<input type="text" id="txt_submenu_id" value="<?php echo $submenu->submenu_id; ?>" disabled >
-				<input type="hidden" name="hidden_submenu_id" value="<?php echo $submenu->submenu_id; ?>" >
-				<input type="hidden" name="hidden_menu_id" value="<?php echo $menu->menu_id; ?>" >
 			</label>
-			<label for="txt_url">URL
+			<label for="txt_url">URL for this submenu
 				<input type="text" name="txt_url" id="txt_url" value="<?php echo $submenu->url; ?>" maxlength="50" placeholder="Maximum 50 characters" required >
 				<span class="form-error">
 					You must enter the URL for <?php echo $menu->link_text; ?> submenu item...
@@ -226,6 +252,10 @@ if (isset($_POST["submit_menu"])) {
 					<?php } ?>
 				</select>
 			</label>
+			<fieldset class="callout">
+				<legend>Will this Submenu be used even when not logged in?</legend>
+				<input type="checkbox" name="chk_box_not_logged_in" id="chk_box_not_logged_in" value="1" <?php if ($submenu->not_logged_in) { ?> checked <?php } ?> /><label for="chk_box_not_logged_in">Check for yes</label>
+			</fieldset>
 			<div class="text-center">
 				<input type="submit" name="submit_submenu" class="button" value="Submit" >
 			</div>
@@ -235,6 +265,8 @@ if (isset($_POST["submit_menu"])) {
 		&nbsp;
 	</div>
 </div>
+
+<!-- Menu -->
 
 <?php } elseif (!$load && !$loadsubmenu) { // Add or Edit menu item ?>
 	<div class="row">
@@ -336,10 +368,10 @@ if (isset($_POST["submit_menu"])) {
 			<div data-abide-error class="alert callout" style="display: none;">
 				<p><i class="fi-alert"></i> There are some errors in your form.</p>
 			</div>
-			<label for="select_menu">Choose a menu to add submenu for
+			<label for="select_menu">Choose 'Add New Submenu' or select Submenu to edit
 				<select name="select_submenu" id="select_submenu" required>
 					<option value="">Select a submenu</option>
-					<option value="new">Add new Submenu</option>
+					<option value="new">Add New Submenu</option>
 					<?php foreach ($submenus as $submenu) { ?>
 						<option value="<?php echo $submenu->id; ?>"><?php echo $submenu->position . ". " . $submenu->link_text; ?></option>
 					<?php } ?>

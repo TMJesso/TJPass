@@ -1,7 +1,7 @@
 <?php
 class Page extends Common {
     protected static $table_name = 'pages';
-    protected static $db_fields = array('id', 'subject_id', 'name', 'menu_name', 'url', 'position', 'level', 'visible', 'content');
+    protected static $db_fields = array('id', 'subject_id', 'name', 'menu_name', 'url', 'position', 'visible', 'content');
     
     public $id;
     public $subject_id;
@@ -9,7 +9,6 @@ class Page extends Common {
     public $menu_name;
     public $url;
     public $position;
-    public $level;
     public $visible;
     public $content;
     

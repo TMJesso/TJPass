@@ -319,7 +319,20 @@ class Cypress extends Common {
 				    $collect_boolean[$num]["db_name"] = $name;
 				    break;
 				    
-				    
+				case 10:
+					$name = "sc";
+					$sc  = 'CREATE TABLE IF NOT EXISTS ' . $name . ' ( ';
+					$sc .= 'id INT(11) NOT NULL AUTO_INCREMENT, ';
+					$sc .= 'sc_id varchar(5) NOT NULL, ';
+					$sc .= 'code varchar(75) NOT NULL, ';
+					$sc .= 'effect varchar(255) NULL DEFAULT NULL, ';
+					$sc .= 'PRIMARY KEY (sc_id), ';
+					$sc .= 'UNIQUE INDEX id (id), ';
+					$sc .= 'UNIQUE INDEX code (code))';
+					$collect_boolean[$num]["passed"] = ($this->query($sc)) ? true : false;
+					$collect_boolean[$num]["db_name"] = $name;
+					break;
+					
 				default:
 					$loop_value = false;
 			}

@@ -34,6 +34,7 @@ require_once LIB_PATH . 'submenu.php';
 require_once LIB_PATH . 'subject.php';
 require_once LIB_PATH . 'pages.php';
 require_once LIB_PATH . 'photo.php';
+require_once LIB_PATH . 'sc.php';
 
 ?>
 

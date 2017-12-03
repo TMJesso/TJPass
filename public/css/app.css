@@ -8,6 +8,14 @@ h1 {
 	color:#336633;
 }
 
+td.strong {
+	font-weight: bold;
+}
+
+underline {
+	text-decoration: underline;	
+}
+
 required {
 	color: red;
 }
